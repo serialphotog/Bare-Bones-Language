@@ -23,6 +23,7 @@ The grammar for the bare bones language (bb) is as follows:
 #define __PARSER_H__
 
 #include <memory>
+#include <vector>
 
 #include "generator.h"
 #include "lexer.h"
@@ -46,8 +47,22 @@ private:
     // The generator instance
     std::shared_ptr<Generator> m_generator;
 
+    // Tracks if a variable with a given name has been declared or not.
+    // When we first encounter a variable declaration we place its name in this
+    // vector. Since our simple langauge has no concept of variable scope, this
+    // simple solution is sufficient for ensuring that variables have been 
+    // previously declared.
+    std::vector<std::string> m_variableMap;
+
     // The current token being parsed
     Token m_currentToken;
+
+    // Checks if a variable has been previously declared by searching the 
+    // variable map vector
+    bool variableHasBeenDeclared(std::string var) const;
+
+    // Pushes a variable name onto the variable map
+    void pushVariable(std::string var);
 
     // Called when a parsing error occurs
     void abort(const char* msg) const;

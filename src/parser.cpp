@@ -2,6 +2,7 @@
 
 #include "bb.h"
 
+#include <algorithm>
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -54,10 +55,19 @@ void Parser::statement()
             output();
             break;
         case T_IDENT:
-            // Output the identifier and advance the parser
-            m_generator->emitToken(m_currentToken);
-            nextToken();
-            assignment();
+            // Ensure that the variable has been previously declared
+            if (variableHasBeenDeclared(m_currentToken.lexeme()))
+            {
+                // Output the identifier and advance the parser
+                m_generator->emitToken(m_currentToken);
+                nextToken();
+                assignment();
+            }
+            else 
+            {
+                // Attempt to assign a value to an undeclared variable
+                abort("Attempt to assign a value to an undeclared variable.");
+            }
             break;
         default:
             // Error, invalid statement
@@ -77,21 +87,34 @@ void Parser::declaration()
     nextToken();
     if (Token::isKind(m_currentToken, T_IDENT))
     {
-        // Write the identifier to the output
-        m_generator->emitToken(m_currentToken);
-
-        // We got an identifier as expected, check if this is an assignement
-        // or simply just a declaration
-        nextToken();
-        if (Token::isKind(m_currentToken, T_EQ))
+        // Check that we aren't trying to redeclare a variable
+        if (!variableHasBeenDeclared(m_currentToken.lexeme()))
         {
-            // This is an assignment
-            assignment();
+            // Write the identifier to the output
+            m_generator->emitToken(m_currentToken);
+
+            // Add the variable to the variable map
+            pushVariable(m_currentToken.lexeme());
+
+            // We got an identifier as expected, check if this is an assignement
+            // or simply just a declaration
+            nextToken();
+            if (Token::isKind(m_currentToken, T_EQ))
+            {
+                // This is an assignment
+                assignment();
+            }
+            else
+            {
+                // This is just a declaration, the next token should be a ';'
+                endl();
+            }
         }
         else
         {
-            // This is just a declaration, the next token should be a ';'
-            endl();
+            // This is an attempt to re-declare a variable, which is not
+            // allowed
+            abort("Attempt to redclare a variable.");
         }
     }
     else 
@@ -189,6 +212,18 @@ void Parser::endl()
         // Error, expected a ';'
         abort("Expected a ';'");
     }
+}
+
+bool Parser::variableHasBeenDeclared(std::string var) const
+{
+    // Search the variable map for the given key
+    return std::find(m_variableMap.begin(), m_variableMap.end(), 
+        var) != m_variableMap.end();
+}
+
+void Parser::pushVariable(std::string var)
+{
+    m_variableMap.push_back(var);
 }
 
 void Parser::abort(const char* msg) const
