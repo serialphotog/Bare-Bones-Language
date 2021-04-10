@@ -22,7 +22,6 @@ enum TokenType
     T_GT = 208,         // >
     T_LTEQ = 209,       // <=
     T_GTEQ = 210,       // >=
-    T_NOT = 211,        // !
     T_MOD = 212,        // %
 
     // Everthing Else
@@ -33,6 +32,7 @@ enum TokenType
     T_LBRACE = 116,     // {
     T_RBRACE = 117,     // }
     T_SEMICOLON = 118,  // ;
+    T_NOT = 119,        // !
 
     // Keywords
     T_LET = 300,        // let
