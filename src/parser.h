@@ -1,25 +1,37 @@
 /*
-
 The grammar for the bare bones language (bb) is as follows:
 
+// Program structure
 <program> --> <statement_list>
-<statement_list> --> <statement>; | <statement>; <statement_lsit>
+<statement_list> --> <statement>; | <statement>; <statement_list>
 <statement> --> <declaration> | <assignment> | <if_else> | <loop> |
     <input> | <output>
+
+// Variable declaration and assignment
 <declaration> --> let <identifier>; | let <assignment>
 <assignment> --> <identifier> = <numeric_value> |
     <arithmetic_expression>;
-<if_else> --> if (<boolean_expression>) { <statement_list> } else { <statement_lsit> } 
+
+// Expressions
+<arithmetic_expression> --> <numeric_value> <math_op> <factor>; |
+    <numeric_value> <math_op> ( <arithmetic_expression> ); |
+    <numeric_value> <math_op> <arithmetic_expression>
+<factor> --> <identifier> | <numeric_value> | ( <arithmetic_expression> )
+
+// Control Structures
+<if_else> --> if (<boolean_expression>) { <statement_list> } else { <statement_list> } 
     | if (<boolean_expression>) { <statement_list> }
 <loop> --> <while_loop> | <for_loop>
 <while_loop> --> while (<boolean_expression>) { <statement_list> }
 <for_loop> --> TODO: THIS
+
+// I/O
 <output> --> print(<string>); | print(<identifier>);
 <input> --> read();
+
+// Base constructs
+<identifier> --> String of characters 
 <numeric_value> --> any numeric value
-<arithmetic_expression> --> <numeric_value> <math_op> <numeric_value>; |
-    <numeric_value> <math_op> ( <arithmetic_expression> ); |
-    <numeric_value> <math_op> <arithmetic_expression>
 <math_op> --> + | - | * | / | %
 */
 
@@ -83,11 +95,9 @@ private:
     void output();
     void assignment();
     void arithmetic_expression();
+    void factor();
     void numeric_value(); 
     void endl();
-
-    // A helper method for parsing arithmetic expressions
-    void arith_helper();
 };
 
 #endif

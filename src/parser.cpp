@@ -96,7 +96,7 @@ void Parser::declaration()
             // Add the variable to the variable map
             pushVariable(m_currentToken.lexeme());
 
-            // We got an identifier as expected, check if this is an assignement
+            // We got an identifier as expected, check if this is an assignment
             // or simply just a declaration
             nextToken();
             if (Token::isKind(m_currentToken, T_EQ))
@@ -243,7 +243,7 @@ void Parser::assignment()
     }
 }
 
-void Parser::arith_helper()
+void Parser::factor()
 {
     if (Token::isKind(m_currentToken, T_IDENT) || 
         Token::isKind(m_currentToken, T_NUM))
@@ -301,7 +301,8 @@ void Parser::arithmetic_expression()
 {
     print_parse("<arithmetic_expression>");
     
-    arith_helper();
+    // There should be some sort of factor here
+    factor();
     
     // recursive arithmetic expression
     while (Token::isOperator(m_currentToken))
@@ -310,7 +311,7 @@ void Parser::arithmetic_expression()
         // arithmetic expression
         m_generator->emitToken(m_currentToken);
         nextToken();
-        arith_helper();
+        factor();
     }
 }
 
