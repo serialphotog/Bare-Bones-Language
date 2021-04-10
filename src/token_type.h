@@ -32,7 +32,8 @@ enum TokenType
     T_LBRACE = 116,     // {
     T_RBRACE = 117,     // }
     T_SEMICOLON = 118,  // ;
-    T_NOT = 119,        // !
+    T_COMMA = 119,      // ,
+    T_NOT = 120,        // !
 
     // Keywords
     T_LET = 300,        // let

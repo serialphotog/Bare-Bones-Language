@@ -141,6 +141,9 @@ Token Lexer::getToken()
         case ';': 
             TOKEN(m_currentChar, T_SEMICOLON);
             break;
+        case ',':
+            TOKEN(m_currentChar, T_COMMA);
+            break;
         case '"':
             {
                 // This is the start/end of a string literal, build the string 
