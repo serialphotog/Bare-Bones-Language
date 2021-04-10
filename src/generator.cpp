@@ -155,8 +155,17 @@ void Generator::emitToken(Token token)
     } 
     else 
     {
-        // Just write the token as-is
-        emit(token.lexeme().c_str());
+        if (Token::isKind(token, T_LPAREN) 
+            || Token::isKind(token, T_RPAREN))
+        {
+            // Keep the output a bit more clean
+            emitTight(token.lexeme().c_str());
+        }
+        else
+        {
+            // Just write the token as-is
+            emit(token.lexeme().c_str());
+        }
     }
 }
 
