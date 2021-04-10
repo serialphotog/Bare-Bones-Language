@@ -141,6 +141,37 @@ Token Lexer::getToken()
         case ';': 
             TOKEN(m_currentChar, T_SEMICOLON);
             break;
+        case '"':
+            {
+                // This is the start/end of a string literal, build the string 
+                // contained within the `"` chars
+                nextChar();
+                int start = m_currentPos;
+                while (m_currentChar != '"')
+                {
+                    // the `\"` sequence is a special case in which the `"` 
+                    // should be treated as part of the string and not as the 
+                    // terminating symbol of this string
+                    if (m_currentChar == '\\' && peek() == '"')
+                    {
+                        // Skip the next two chars
+                        nextChar();
+                        nextChar();
+
+                        // Continue parsing out the string literal
+                        continue;
+                    }
+
+                    nextChar();
+                }
+
+                // Build the string literal
+                std::stringstream ss;
+                for (int i = start; i <= m_currentPos - 1; i++)
+                    ss << m_inputBuffer[i];
+                TOKEN(ss.str(), T_STRING);
+            }
+            break;
         default:
             // Deal with number literals
             if (isdigit(m_currentChar))
