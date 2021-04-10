@@ -142,6 +142,54 @@ void Parser::for_loop()
 void Parser::output()
 {
     print_parse("<output>");
+
+    // emit the print keyword and advance the parser
+    m_generator->emitToken(m_currentToken);
+    nextToken();
+
+    // Next we should have a L_PAREN
+    if (Token::isKind(m_currentToken, T_LPAREN))
+    {
+        // Emit the parenthesis
+        m_generator->emitToken(m_currentToken);
+        nextToken();
+
+        // The next token should be a string literal
+        if (Token::isKind(m_currentToken, T_STRING))
+        {
+            m_generator->emitTight("\"");
+            // Emit the string and advance the parser
+            m_generator->emitTight(m_currentToken.lexeme().c_str());
+            m_generator->emitTight("\"");
+            nextToken();
+
+            // Ensure that we have the R_PAREN
+            if (Token::isKind(m_currentToken, T_RPAREN))
+            {
+                // Emit the parenthesis and advance the parser
+                m_generator->emitToken(m_currentToken);
+                nextToken();
+            }
+            else
+            {
+                // Error, expected a R_PAREN
+                abort("Expected a R_PAREN for the call to `print`");
+            }
+
+            // Ensure that the line ends with a ';'
+            endl();
+        }
+        else
+        {
+            // Error, expected a string literal
+            abort("Expected a string literal for the call to `print`");
+        }
+    }
+    else
+    {
+        // Error, expeceted a L_PAREN
+        abort("Expected L_PAREN for the call to `print`");
+    }
 }
 
 void Parser::assignment()

@@ -82,6 +82,16 @@ void Generator::emit(const char* sequence)
 #endif
 }
 
+void Generator::emitTight(const char* sequence)
+{
+    m_file << sequence;
+
+#ifdef FORCE_GENERATOR_FLUSH
+    // The force flush option is enabled in `bb.h`
+    m_file.flush();
+#endif
+}
+
 void Generator::emitLineEnd()
 {
     m_file << ";";
@@ -142,7 +152,8 @@ void Generator::emitKeyword(Token token)
             emit("int");
             break;
         case T_PRINT:
-            std::cout << "PRINT: Implement me" << std::endl;
+            // Handles the print keyword
+            emit("printf");
             break;
     }
 }

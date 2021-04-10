@@ -17,6 +17,9 @@ public:
     // Writes a given sequence to the output
     void emit(const char* sequence);    
 
+    // Writes a given sequence without adding any space
+    void emitTight(const char* sequence);
+
     // Writes a given token to the output
     void emitToken(Token token);
 
