@@ -191,9 +191,18 @@ void Parser::arith_helper()
         }
         else
         {
-            // emit the token and advance the parser
-            m_generator->emitToken(m_currentToken);
-            nextToken();
+            // Ensure that the identifier has been previously declared
+            if (variableHasBeenDeclared(m_currentToken.lexeme()))
+            {
+                // emit the token and advance the parser
+                m_generator->emitToken(m_currentToken);
+                nextToken();
+            }
+            else
+            {
+                // Error, attempt to reference an undeclared variable
+                abort("Variable does not exist.");
+            }
         }
     }
     else if (Token::isKind(m_currentToken, T_LPAREN))
