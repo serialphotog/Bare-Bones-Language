@@ -26,7 +26,8 @@ The grammar for the bare bones language (bb) is as follows:
 <for_loop> --> TODO: THIS
 
 // I/O
-<output> --> print(<string>); | print(<identifier>);
+<output> --> print(<output_seq>); 
+<output_seq> --> <string> | <identifier> | <string, <identifier>
 <input> --> read();
 
 // Base constructs
@@ -98,6 +99,15 @@ private:
     void factor();
     void numeric_value(); 
     void endl();
+
+    // Helper function for <output> to verify that we have either a string
+    // literal or an identifier without consuming the current token.
+    void isStringOrIdent();
+
+    // This is a helper to build the output string and identifier stack for 
+    // our print(). This information is later used by the generator to output
+    // the resulting print call in the output language (C, in our case).
+    void buildPrint(std::stringstream& ss, std::vector<std::string>& idents);
 };
 
 #endif

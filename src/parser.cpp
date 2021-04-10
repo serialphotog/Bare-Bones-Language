@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 #include <string>
 
 Parser::Parser(std::shared_ptr<Lexer> lex, std::shared_ptr<Generator> generator) 
@@ -139,6 +140,39 @@ void Parser::for_loop()
     print_parse("<for_loop>");
 }
 
+void Parser::isStringOrIdent()
+{
+    if (!Token::isKind(m_currentToken, T_STRING)
+        && !Token::isKind(m_currentToken, T_IDENT))
+    {
+        abort("Expected a string literal or identifier for print().");
+    }        
+
+    if (Token::isKind(m_currentToken, T_IDENT) 
+        && !variableHasBeenDeclared(m_currentToken.lexeme()))
+    {
+        abort("Attempt to print an undeclared variable.");
+    }
+}
+
+void Parser::buildPrint(std::stringstream& ss, std::vector<std::string>& idents)
+{
+    if (Token::isKind(m_currentToken, T_STRING))
+    {
+        // Simply append the string literal token to the print string
+        ss << m_currentToken.lexeme();
+    }
+    else
+    {
+        // This is a variable, append the format specifier to the print
+        // string and push the identifier to the map vector. The format
+        // specifier portion is extremely simple since our language only
+        // deals with integers
+        ss << "%d";
+        idents.push_back(m_currentToken.lexeme());
+    }
+}
+
 void Parser::output()
 {
     print_parse("<output>");
@@ -154,35 +188,41 @@ void Parser::output()
         m_generator->emitToken(m_currentToken);
         nextToken();
 
-        // The next token should be a string literal or an identifier
-        if (Token::isKind(m_currentToken, T_STRING))
+        // Check that we have either a string or and identifier w/o consuming
+        // the token
+        isStringOrIdent();
+
+        /* Start building the output string */
+        // This vector will store the variables, in order, that need to be printed 
+        std::vector<std::string> identifier_map;
+        // This will be the builder for the string literal portion of the print
+        std::stringstream ss;
+
+        // Build the print string and variable stack
+        buildPrint(ss, identifier_map);
+
+        // Consume the token and move on
+        nextToken();
+
+        // Handle the case where we print multiple items in one call
+        // Example: print("some string", some_var, "another string");
+        while (Token::isKind(m_currentToken, T_COMMA))
         {
-            m_generator->emitTight("\"");
-            // Emit the string and advance the parser
-            m_generator->emitTight(m_currentToken.lexeme().c_str());
-            m_generator->emitTight("\"");
+            // Consume the comma
+            nextToken();
+
+            // We should now have a string or identifier
+            isStringOrIdent();
+
+            // Expand the output
+            buildPrint(ss, identifier_map);
+
+            // Advance the parser
             nextToken();
         }
-        else if (Token::isKind(m_currentToken, T_IDENT))
-        {
-           // Ensure this identifier has been declared
-           if (variableHasBeenDeclared(m_currentToken.lexeme()))
-           {
-                // Emit the variable and advance the parser
-                m_generator->emitIdentifierPrint(m_currentToken.lexeme());
-                nextToken();
-           }
-           else
-           {
-                // Error, attempt to print an undeclared variable
-                abort("Attempt to print an undeclared variable.");
-           }
-        }
-        else
-        {
-            // Error, expected a string literal
-            abort("Expected a string literal or identifier for the call to `print`");
-        }
+
+        // Emit the final print string to the output
+        m_generator->emitPrint(ss.str(), identifier_map);
 
         // Ensure that we have the R_PAREN
         if (Token::isKind(m_currentToken, T_RPAREN))

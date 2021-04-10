@@ -2,6 +2,7 @@
 #define __GENERATOR_H__
 
 #include <fstream>
+#include <vector>
 
 #include "token.h"
 
@@ -29,8 +30,9 @@ public:
     // Concludes the main function in the generated c code
     void emitProgramEnd();
 
-    // Special case emit for writing a variable print string
-    void emitIdentifierPrint(std::string identifier);
+    // Emits the internal portion of a printf for the implementation of our
+    // print() call
+    void emitPrint(const std::string& str, const std::vector<std::string>& idents);
 private:
     // The file object for writing
     std::ofstream m_file;

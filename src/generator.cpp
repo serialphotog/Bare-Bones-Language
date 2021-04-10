@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 
 #include "bb.h"
 #include "token_type.h"
@@ -58,10 +59,30 @@ void Generator::emitProgramEnd()
     m_file.flush();
 }
 
-void Generator::emitIdentifierPrint(std::string identifier)
+void Generator::emitPrint(const std::string& str, const std::vector<std::string>& idents)
 {
-    emitTight("\"%d\", ");
-    emitTight(identifier.c_str());
+    std::stringstream ss;
+    // Start by pushing the opening/closing `"` and the print string to the output
+    ss << "\"";
+    ss << str;
+    ss << "\"";
+    
+    // Next, append the identifiers
+    for (int i=0; i < idents.size(); i++)
+    {
+        // The first identifer needs a comma prepended
+        if (i == 0)
+            ss << ',';
+
+        ss << idents[i];
+
+        // Append a comma on all except the last identifier
+        if (i < idents.size() - 1)
+            ss << ',';
+    }
+
+    // Emit the output
+    emitTight(ss.str().c_str());
 }
 
 void Generator::emit(const char* sequence)
