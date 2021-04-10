@@ -14,11 +14,11 @@ The grammar for the bare bones language (bb) is as follows:
 <loop> --> <while_loop> | <for_loop>
 <while_loop> --> while (<boolean_expression>) { <statement_list> }
 <for_loop> --> TODO: THIS
-<output> --> print(<string>);
+<output> --> print(<string>); | print(<identifier>);
 <input> --> read();
 <numeric_value> --> any numeric value
-<arithmetic_expression> --> <numeric_value> <math_op> <numeric_value> |
-    <numeric_value> <math_op> ( <arithmetic_expression> ) |
+<arithmetic_expression> --> <numeric_value> <math_op> <numeric_value>; |
+    <numeric_value> <math_op> ( <arithmetic_expression> ); |
     <numeric_value> <math_op> <arithmetic_expression>
 <math_op> --> + | - | * | / | %
 */

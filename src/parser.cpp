@@ -154,7 +154,7 @@ void Parser::output()
         m_generator->emitToken(m_currentToken);
         nextToken();
 
-        // The next token should be a string literal
+        // The next token should be a string literal or an identifier
         if (Token::isKind(m_currentToken, T_STRING))
         {
             m_generator->emitTight("\"");
@@ -162,28 +162,43 @@ void Parser::output()
             m_generator->emitTight(m_currentToken.lexeme().c_str());
             m_generator->emitTight("\"");
             nextToken();
-
-            // Ensure that we have the R_PAREN
-            if (Token::isKind(m_currentToken, T_RPAREN))
-            {
-                // Emit the parenthesis and advance the parser
-                m_generator->emitToken(m_currentToken);
+        }
+        else if (Token::isKind(m_currentToken, T_IDENT))
+        {
+           // Ensure this identifier has been declared
+           if (variableHasBeenDeclared(m_currentToken.lexeme()))
+           {
+                // Emit the variable and advance the parser
+                m_generator->emitIdentifierPrint(m_currentToken.lexeme());
                 nextToken();
-            }
-            else
-            {
-                // Error, expected a R_PAREN
-                abort("Expected a R_PAREN for the call to `print`");
-            }
-
-            // Ensure that the line ends with a ';'
-            endl();
+           }
+           else
+           {
+                // Error, attempt to print an undeclared variable
+                abort("Attempt to print an undeclared variable.");
+           }
         }
         else
         {
             // Error, expected a string literal
-            abort("Expected a string literal for the call to `print`");
+            abort("Expected a string literal or identifier for the call to `print`");
         }
+
+        // Ensure that we have the R_PAREN
+        if (Token::isKind(m_currentToken, T_RPAREN))
+        {
+            // Emit the parenthesis and advance the parser
+            m_generator->emitToken(m_currentToken);
+            nextToken();
+        }
+        else
+        {
+            // Error, expected a R_PAREN
+            abort("Expected a R_PAREN for the call to `print`");
+        }
+
+        // Ensure that the line ends with a ';'
+        endl();
     }
     else
     {

@@ -28,6 +28,9 @@ public:
 
     // Concludes the main function in the generated c code
     void emitProgramEnd();
+
+    // Special case emit for writing a variable print string
+    void emitIdentifierPrint(std::string identifier);
 private:
     // The file object for writing
     std::ofstream m_file;

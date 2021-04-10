@@ -58,6 +58,12 @@ void Generator::emitProgramEnd()
     m_file.flush();
 }
 
+void Generator::emitIdentifierPrint(std::string identifier)
+{
+    emitTight("\"%d\", ");
+    emitTight(identifier.c_str());
+}
+
 void Generator::emit(const char* sequence)
 {
     // Write a space if this isn't the start of a line
