@@ -155,8 +155,20 @@ void Parser::assignment()
         m_generator->emitToken(m_currentToken);
         nextToken();
 
-        // Check that we have an integer value
-        numeric_value();
+        // Here we can either have a literal value or an arithmetic expression
+        if (Token::isKind(m_currentToken, T_NUM))
+            numeric_value(); // Attempt to parse as a numeric value
+
+        // Handle arithmetic expressions
+        while (Token::isOperator(m_currentToken))
+        {
+            // Emit the operator and advance the parser
+            m_generator->emitToken(m_currentToken);
+            nextToken();
+
+            // Handle the arithmetic expression
+            arithmetic_expression();
+        }
 
         // Ensure we end with a ';'
         endl();
@@ -168,8 +180,72 @@ void Parser::assignment()
     }
 }
 
+void Parser::arith_helper()
+{
+    if (Token::isKind(m_currentToken, T_IDENT) || 
+        Token::isKind(m_currentToken, T_NUM))
+    {
+        if (Token::isKind(m_currentToken, T_NUM))
+        {
+            numeric_value();
+        }
+        else
+        {
+            // emit the token and advance the parser
+            m_generator->emitToken(m_currentToken);
+            nextToken();
+        }
+    }
+    else if (Token::isKind(m_currentToken, T_LPAREN))
+    {
+        // Emit the parenthesis and advance the parser
+        m_generator->emitToken(m_currentToken);
+        nextToken();
+
+        // Check for an expression
+        arithmetic_expression();
+
+        // Check for the closing parenthesis
+        if (Token::isKind(m_currentToken, T_RPAREN))
+        {
+            // Emit the parenthesis and advance the parser
+            m_generator->emitToken(m_currentToken);
+            nextToken();
+        }
+        else
+        {
+            // Error, expected a ')'
+            abort("Expected a R_PAREN");
+        }
+    }
+    else
+    {
+        // Error, malformed expression
+        abort("Malformed arithmetic expression.");
+    }
+}
+
+void Parser::arithmetic_expression()
+{
+    print_parse("<arithmetic_expression>");
+    
+    arith_helper();
+    
+    // recursive arithmetic expression
+    while (Token::isOperator(m_currentToken))
+    {
+        // Emit the operator, advance the parser, and continue parsing the 
+        // arithmetic expression
+        m_generator->emitToken(m_currentToken);
+        nextToken();
+        arith_helper();
+    }
+}
+
 void Parser::numeric_value()
 {
+    print_parse("<numeric_value>");
+
     if (Token::isKind(m_currentToken, T_NUM))
     {
         // Token appears to be a number, validate this is true

@@ -7,7 +7,8 @@ The grammar for the bare bones language (bb) is as follows:
 <statement> --> <declaration> | <assignment> | <if_else> | <loop> |
     <input> | <output>
 <declaration> --> let <identifier>; | let <assignment>
-<assignment> --> <identifier> = <numeric_value>;
+<assignment> --> <identifier> = <numeric_value> |
+    <arithmetic_expression>;
 <if_else> --> if (<boolean_expression>) { <statement_list> } else { <statement_lsit> } 
     | if (<boolean_expression>) { <statement_list> }
 <loop> --> <while_loop> | <for_loop>
@@ -16,7 +17,10 @@ The grammar for the bare bones language (bb) is as follows:
 <output> --> print(<string>);
 <input> --> read();
 <numeric_value> --> any numeric value
-
+<arithmetic_expression> --> <numeric_value> <math_op> <numeric_value> |
+    <numeric_value> <math_op> ( <arithmetic_expression> ) |
+    <numeric_value> <math_op> <arithmetic_expression>
+<math_op> --> + | - | * | / | %
 */
 
 #ifndef __PARSER_H__
@@ -78,8 +82,12 @@ private:
     void for_loop();
     void output();
     void assignment();
+    void arithmetic_expression();
     void numeric_value(); 
     void endl();
+
+    // A helper method for parsing arithmetic expressions
+    void arith_helper();
 };
 
 #endif
