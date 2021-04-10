@@ -115,10 +115,10 @@ Token Lexer::getToken()
             }
             break;
         case '(':
-            TOKEN(m_currentChar, T_RPAREN);
+            TOKEN(m_currentChar, T_LPAREN);
             break;
         case ')':
-            TOKEN(m_currentChar, T_LPAREN);
+            TOKEN(m_currentChar, T_RPAREN);
             break;
         case '[':
             TOKEN(m_currentChar, T_LBRACKET);
