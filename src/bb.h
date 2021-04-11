@@ -4,13 +4,6 @@
 // Uncomment this line to enable debug output
 #define DEBUG
 
-// Uncomment this to force flush the generated code on each write. 
-// This is a special debug feature to force the code generator to flush its 
-// contents to disk after each write. This is done to ensure that the generated
-// code is actually written to disk before a call to exit() during a failed
-// parse, thus aiding in the debug process.
-#define FORCE_GENERATOR_FLUSH
-
 // If this line is uncommented "pretty print mode" will be enabled. This simply
 // appends a newline to the end of each line (after a `;`) in the generated 
 // output. This is purely for the benefit of someone trying to debug the output
