@@ -254,6 +254,14 @@ Token Lexer::checkIfKeyword(std::string& lexeme)
     {
         TOKEN(lexeme, T_PRINT);
     }
+    else if (lexeme == "and")
+    {
+        TOKEN(lexeme, T_AND);
+    }
+    else if (lexeme == "or")
+    {
+        TOKEN(lexeme, T_OR);
+    }
 
     return token;
 }

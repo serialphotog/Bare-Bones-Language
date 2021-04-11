@@ -16,12 +16,7 @@ enum TokenType
     T_MINUS = 202,      // -
     T_DIV = 203,        // /
     T_MUL = 204,        // *
-    T_EQEQ = 205,       // ==
     T_NEQ = 206,        // !=
-    T_LT = 207,         // <
-    T_GT = 208,         // >
-    T_LTEQ = 209,       // <=
-    T_GTEQ = 210,       // >=
     T_MOD = 212,        // %
 
     // Everthing Else
@@ -33,7 +28,17 @@ enum TokenType
     T_RBRACE = 117,     // }
     T_SEMICOLON = 118,  // ;
     T_COMMA = 119,      // ,
+
+    // Boolean operations
     T_NOT = 120,        // !
+    T_EQEQ = 121,       // ==
+    T_LT = 122,         // <
+    T_GT = 123,         // >
+    T_LTEQ = 124,       // <=
+    T_GTEQ = 125,       // >=
+    T_AND = 126,        // and
+    T_OR = 127,         // or 
+
 
     // Keywords
     T_LET = 300,        // let
