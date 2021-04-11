@@ -2,7 +2,6 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <sstream>
 
 #include "bb.h"
 #include "token_type.h"
@@ -18,45 +17,76 @@ Generator::Generator(const char* path)
         std::cerr << "Aborting..." << std::endl;
         exit(-1);
     }   
+}
 
-    // Write the necessary start C code for our generated output
-    emitProgramStart();
+void Generator::emitProgram(const std::vector<std::string>& identifierMap)
+{
+    // Start by writing the necessary includes
+    m_file << "#include <stdio.h>\n";
+
+#ifdef PRETTY_PRINT
+    // The pretty print option is enabled in `bb.h`. Add an extra newline for
+    // better readability
+    m_file << "\n";
+#endif
+
+    // Start the main()
+    m_file << "void main() {";
+
+#ifdef PRETTY_PRINT
+    m_file << "\n";
+    m_startOfLine = true;
+#endif
+
+    // Initialize the identifiers
+    emitInitializations(identifierMap);
+
+    // Emit the remaining lines of the program
+    emitOutput();
+
+    // Finish off the main()
+    m_file << "}";
+
+    // Ensure the changes get flushed to disk
+    m_file.flush();
+}
+
+void Generator::emitOutput()
+{
+    // Iterate over the lines and emit them to disk
+    for (int i=0; i < m_lines.size(); i++)
+    {
+        m_file << m_lines[i];
+    }
+}
+
+void Generator::emitInitializations(const std::vector<std::string> identifierMap)
+{
+    // Iterate over all of the identifiers and declare them in the output
+    for (int i=0; i < identifierMap.size(); i++)
+    {
+#ifdef PRETTY_PRINT
+        // The pretty print option is enabled in `bb.h`, add a tab for better
+        // readability
+        if (m_startOfLine)
+        {
+            m_file << "\t";
+        }
+#endif
+
+        m_file << "int " << identifierMap[i] << ";\n";
+    }
+
+#ifdef PRETTY_PRINT
+    // the pretty print option is enabled, add an extra newline to the output
+    m_file << "\n";
+#endif
 }
 
 Generator::~Generator()
 {
     // Close the output file
     m_file.close();
-}
-
-void Generator::emitProgramStart()
-{
-    // Write the necessary includes
-    m_file << "#include <stdio.h>\n";
-
-#ifdef PRETTY_PRINT
-    // Enable an additional newline for readability when the pretty print 
-    // option is enabled in `bb.h`
-    m_file << "\n";
-#endif
-
-    // Start the main function
-    m_file << "void main() {";
-
-#ifdef PRETTY_PRINT
-    // The pretty print option is enabled in `bb.h`. Add a newline for easier
-    // to read (and thus debug) output
-    m_file << "\n";
-    m_startOfLine = true;
-#endif
-}
-
-void Generator::emitProgramEnd()
-{
-    m_file << "}";
-
-    // Ensure the output is fully flushed
-    m_file.flush();
 }
 
 void Generator::emitPrint(const std::string& str, const std::vector<std::string>& idents)
@@ -89,51 +119,41 @@ void Generator::emit(const char* sequence)
 {
     // Write a space if this isn't the start of a line
     if (!m_startOfLine)
-        m_file << " ";
+        m_line << " ";
     else
     {
 #ifdef PRETTY_PRINT
     // The pretty print option is enable in `bb.h`. Add a \t for easier to 
     // read output
-    m_file << "\t";
+    m_line << "\t";
 #endif
     }
 
     // Write the output
-    m_file << sequence;
+    m_line << sequence;
     m_startOfLine = false;
-
-#ifdef FORCE_GENERATOR_FLUSH
-    // The option to force flushing the output is enabled in `bb.h` 
-    m_file.flush();
-#endif
 }
 
 void Generator::emitTight(const char* sequence)
 {
-    m_file << sequence;
-
-#ifdef FORCE_GENERATOR_FLUSH
-    // The force flush option is enabled in `bb.h`
-    m_file.flush();
-#endif
+    m_line << sequence;
 }
 
 void Generator::emitLineEnd()
 {
-    m_file << ";";
+    m_line << ";";
 
 #ifdef PRETTY_PRINT
     // The pretty print option is enabled in `bb.h`, add a newline for easier
     // output debugging
-    m_file << "\n";
+    m_line << "\n";
     m_startOfLine = true;
 #endif
 
-#ifdef FORCE_GENERATOR_FLUSH
-    // The option to force flushing the output is enabled in `bb.h` 
-    m_file.flush();
-#endif
+    // Push the line to the lines vector and clear it for future use
+    m_lines.push_back(m_line.str());
+    m_line.str("");
+    m_line.clear();
 }
 
 void Generator::emitToken(Token token)

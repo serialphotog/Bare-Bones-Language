@@ -29,8 +29,8 @@ void Parser::parse()
     }
 
     // If we made it here then we must've successfully parsed the whole program.
-    // Write the end of the output
-    m_generator->emitProgramEnd();
+    // Emit the generated program to disk
+    m_generator->emitProgram(m_variableMap);
 }
 
 void Parser::statement()
@@ -81,9 +81,6 @@ void Parser::declaration()
 {
     print_parse("<declaration>");
 
-    // Output the "let"
-    m_generator->emitToken(m_currentToken);
-
     // The next token should be an identifier
     nextToken();
     if (Token::isKind(m_currentToken, T_IDENT))
@@ -91,11 +88,12 @@ void Parser::declaration()
         // Check that we aren't trying to redeclare a variable
         if (!variableHasBeenDeclared(m_currentToken.lexeme()))
         {
-            // Write the identifier to the output
-            m_generator->emitToken(m_currentToken);
-
             // Add the variable to the variable map
             pushVariable(m_currentToken.lexeme());
+
+            // Store the identifier in case we need to use this as an 
+            // assignment 
+            Token identifier = m_currentToken;
 
             // We got an identifier as expected, check if this is an assignment
             // or simply just a declaration
@@ -103,6 +101,7 @@ void Parser::declaration()
             if (Token::isKind(m_currentToken, T_EQ))
             {
                 // This is an assignment
+                m_generator->emitToken(identifier);
                 assignment();
             }
             else
