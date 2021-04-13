@@ -18,6 +18,13 @@ Lexer::Lexer(std::ifstream& file)
     const std::string& s = ss.str();
     m_inputBuffer = std::vector<char>(s.begin(), s.end());
 
+    // Check for an empty buffer, which would correspond to an empty input file
+    if (m_inputBuffer.size() == 0)
+    {
+        std::cerr << "Empty input file provided. Nothing to do." << std::endl;
+        exit(0);
+    }
+
     // Initialize the lexer state
     m_bufferLength = m_inputBuffer.size();
     m_currentPos = 0;
