@@ -17,6 +17,9 @@ The grammar for the bare bones language (bb) is as follows:
     <numeric_value> <math_op> ( <arithmetic_expression> ); |
     <numeric_value> <math_op> <arithmetic_expression>
 <factor> --> <identifier> | <numeric_value> | ( <arithmetic_expression> )
+<boolean_expression> --> [!] (<identifier> | <literal>) <comparison_operator> (<identifier> | <literal>)
+    | [!] <boolean_expression> ) | [!] <boolean_expression> <comparison_operator> <boolean_expression>
+    | [!] (<identifier> | <literal>) <comparison_operator> <boolean_expression>
 
 // Control Structures
 <if_else> --> if (<boolean_expression>) { <statement_list> } else { <statement_list> } 
@@ -34,6 +37,7 @@ The grammar for the bare bones language (bb) is as follows:
 <identifier> --> String of characters 
 <numeric_value> --> any numeric value
 <math_op> --> + | - | * | / | %
+<comparison_operator> --> == | < | > | <= | >= | and | or 
 */
 
 #ifndef __PARSER_H__
