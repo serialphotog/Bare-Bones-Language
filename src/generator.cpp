@@ -225,7 +225,13 @@ void Generator::emitToken(Token token)
         // Pretty print mode is enabled, add a space for better readability
         emitTight(" ");
 #endif
-        emit(token.lexeme().c_str());
+        if (Token::isKind(token, T_AND))
+            emit("&&");
+        else if (Token::isKind(token, T_OR))
+            emit("||");
+        else
+            emit(token.lexeme().c_str());
+
 #ifdef PRETTY_PRINT
         // Pretty print mode is enabled, add a space for better readability
         emitTight(" ");
