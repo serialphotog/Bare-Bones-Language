@@ -221,6 +221,14 @@ void Generator::emitToken(Token token)
         // Emit an operator to the output
         emitOperator(token);
     } 
+    else if (Token::isComparisonOperator(token))
+    {
+        emit(token.lexeme().c_str());
+#ifdef PRETTY_PRINT
+        // Pretty print mode is enabled, add a space for better readability
+        emitTight(" ");
+#endif
+    }
     else 
     {
         if (Token::isKind(token, T_LPAREN) 
