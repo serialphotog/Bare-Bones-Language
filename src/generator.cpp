@@ -126,9 +126,7 @@ void Generator::emitPrint(const std::string& str, const std::vector<std::string>
 void Generator::emit(const char* sequence)
 {
     // Write a space if this isn't the start of a line
-    if (!m_startOfLine)
-        m_line << " ";
-    else
+    if (m_startOfLine)
     {
 #ifdef PRETTY_PRINT
     // The pretty print option is enable in `bb.h`. Add a \t for easier to 
@@ -223,6 +221,10 @@ void Generator::emitToken(Token token)
     } 
     else if (Token::isComparisonOperator(token))
     {
+#ifdef PRETTY_PRINT
+        // Pretty print mode is enabled, add a space for better readability
+        emitTight(" ");
+#endif
         emit(token.lexeme().c_str());
 #ifdef PRETTY_PRINT
         // Pretty print mode is enabled, add a space for better readability
@@ -280,6 +282,10 @@ void Generator::emitOperator(Token token)
      {
         // Handle the operators that are identical to those in C
         default:
+#ifdef PRETTY_PRINT
+            // Add a space after operator when pretty print mode is enabled
+            emit(" ");
+#endif
            emit(token.lexeme().c_str()); 
 #ifdef PRETTY_PRINT
             // Add a space after operator when pretty print mode is enabled
