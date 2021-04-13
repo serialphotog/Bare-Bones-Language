@@ -169,6 +169,7 @@ void Parser::if_else()
                         if (Token::isKind(m_currentToken, T_LBRACE)) 
                         {
                             m_generator->emitBlockStart();
+                            nextToken();
                             
                             // Get the next statement and parse the <stmt_list>
                             while (!Token::isKind(m_currentToken, T_RBRACE))
