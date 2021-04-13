@@ -104,11 +104,19 @@ void Generator::emitPrint(const std::string& str, const std::vector<std::string>
         if (i == 0)
             ss << ',';
 
+#ifdef PRETTY_PRINT
+            ss << ' ';
+#endif
+
         ss << idents[i];
 
         // Append a comma on all except the last identifier
         if (i < idents.size() - 1)
+#ifdef PRETTY_PRINT
+            ss << ", ";
+#else
             ss << ',';
+#endif
     }
 
     // Emit the output
@@ -125,7 +133,8 @@ void Generator::emit(const char* sequence)
 #ifdef PRETTY_PRINT
     // The pretty print option is enable in `bb.h`. Add a \t for easier to 
     // read output
-    m_line << "\t";
+    for (int i=0; i < m_indentLevel; i++)
+        m_line << "\t";
 #endif
     }
 
@@ -152,6 +161,7 @@ void Generator::emitBlockStart()
     // The pretty print option is enabled in `bb.h`, add a newline for easier
     // output debugging
     m_line << "\n";
+    m_indentLevel++;
     m_startOfLine = true;
 
     // Push the line to the vector and clear it for future use
@@ -164,7 +174,8 @@ void Generator::emitBlockStart()
 void Generator::emitBlockEnd()
 {
 #ifdef PRETTY_PRINT
-    if (m_startOfLine)
+    m_indentLevel--;
+    for (int i=0; i < m_indentLevel; i++)
         m_line << "\t";
 #endif
 
@@ -221,7 +232,7 @@ void Generator::emitToken(Token token)
         else
         {
             // Just write the token as-is
-            emit(token.lexeme().c_str());
+            emitTight(token.lexeme().c_str());
         }
     }
 }
@@ -237,8 +248,12 @@ void Generator::emitKeyword(Token token)
         case T_FOR:
         case T_WHILE:
             emit(token.lexeme().c_str());
+#ifdef PRETTY_PRINT
+            // Pretty print mode is enabled, add a space for better readability
+            emit(" ");
+#endif
             break;
-        // A few need special treament, however
+        // A few need special treatment, however
         case T_LET:
             // In the case of our simple language, the only data type is `int`,
             // so this is a very easy case to implement
@@ -255,8 +270,12 @@ void Generator::emitOperator(Token token)
 {
      switch (token.type())
      {
-        // Handle the operators that are identical to thos in C
+        // Handle the operators that are identical to those in C
         default:
            emit(token.lexeme().c_str()); 
+#ifdef PRETTY_PRINT
+            // Add a space after operator when pretty print mode is enabled
+            emit(" ");
+#endif
      }
 }

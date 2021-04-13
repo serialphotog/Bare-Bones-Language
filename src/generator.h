@@ -51,6 +51,9 @@ private:
     // necessary, it does result in a slightly nicer/cleaner output
     bool m_startOfLine = true;
 
+    // Tracks the indent level for when pretty print mode is enabled
+    int m_indentLevel = 1;
+
     // Emits a given sequence to the output
     void emit(const char* sequence);    
 
