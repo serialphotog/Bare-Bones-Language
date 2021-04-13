@@ -139,6 +139,43 @@ void Generator::emitTight(const char* sequence)
     m_line << sequence;
 }
 
+void Generator::emitBlockStart()
+{
+#ifdef PRETTY_PRINT
+    // Pretty print is set, add a space for better readability
+    m_line << " ";
+#endif
+
+    m_line << "{";
+
+#ifdef PRETTY_PRINT
+    // The pretty print option is enabled in `bb.h`, add a newline for easier
+    // output debugging
+    m_line << "\n";
+    m_startOfLine = true;
+
+    // Push the line to the vector and clear it for future use
+    m_lines.push_back(m_line.str());
+    m_line.str("");
+    m_line.clear();
+#endif
+}   
+
+void Generator::emitBlockEnd()
+{
+#ifdef PRETTY_PRINT
+    if (m_startOfLine)
+        m_line << "\t";
+#endif
+
+    m_line << "}\n";
+
+    // Push the line to the vector and clear it for future use
+    m_lines.push_back(m_line.str());
+    m_line.str("");
+    m_line.clear();
+}
+
 void Generator::emitLineEnd()
 {
     m_line << ";";

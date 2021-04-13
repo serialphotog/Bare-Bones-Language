@@ -127,6 +127,93 @@ void Parser::declaration()
 void Parser::if_else()
 {
     print_parse("<if_else>");
+
+    // Emit the if
+    m_generator->emitToken(m_currentToken);
+
+    // The next token should be a '('
+    nextToken();
+    if (Token::isKind(m_currentToken, T_LPAREN))
+    {
+        // Next should be a boolean expression
+        m_generator->emitToken(m_currentToken);
+        nextToken();
+        boolean_expression();
+
+        // Check for the closing ')'
+        if (Token::isKind(m_currentToken, T_RPAREN))
+        {
+            m_generator->emitToken(m_currentToken);
+
+            // Check for the opening of the block
+            nextToken();
+            if (Token::isKind(m_currentToken, T_LBRACE))
+            {
+                // Parse the <stmt_list>
+                m_generator->emitBlockStart();
+                nextToken();
+                while (!Token::isKind(m_currentToken, T_RBRACE))
+                    statement();
+                
+                // Check for the closing '}'
+                if (Token::isKind(m_currentToken, T_RBRACE))
+                {
+                    // Get the next token and determine if there is an else clause
+                    m_generator->emitBlockEnd();
+                    nextToken();
+                    if (Token::isKind(m_currentToken, T_ELSE))
+                    {
+                        // we have an else clause, look for the opening '{'
+                        m_generator->emitToken(m_currentToken);
+                        nextToken();
+                        if (Token::isKind(m_currentToken, T_LBRACE)) 
+                        {
+                            m_generator->emitBlockStart();
+                            
+                            // Get the next statement and parse the <stmt_list>
+                            while (!Token::isKind(m_currentToken, T_RBRACE))
+                                statement();
+                            
+                            // Check for the '}'
+                            if (Token::isKind(m_currentToken, T_RBRACE))
+                            {
+                                // increment the parser
+                                m_generator->emitBlockEnd();
+                                nextToken();
+                            } 
+                            else
+                            {
+                                abort("Expected a '}' token.");
+                            }
+                        }
+                        else
+                        {
+                            // Error, else clause must be in a block
+                            abort("Expected a '{' token.");
+                        }
+                    }
+                }
+                else 
+                {
+                    abort("Expected a '}' token.");
+                }
+            }
+            else 
+            {
+                // Error, expected a '{'
+                abort("Expected a { token.");
+            }
+        }
+        else
+        {
+            abort("Expected an RPAREN.");
+        }
+    } 
+    else 
+    {
+        // Error, expected a '(' character
+        abort("Expected a LPAREN.");
+    }
 }
 
 void Parser::while_loop()
@@ -137,6 +224,136 @@ void Parser::while_loop()
 void Parser::for_loop()
 {
     print_parse("<for_loop>");
+}
+
+void Parser::boolean_expression()
+{
+    print_parse("<boolean_expression>");
+
+    // A boolean expression can either start with a !, (, identifier, or literal
+    // Check for a '!'
+    if (Token::isKind(m_currentToken, T_NOT))
+    {
+        // We can just emit this token and move one
+        m_generator->emitToken(m_currentToken);
+        nextToken();
+    }
+
+    // Check for a '('
+    if (Token::isKind(m_currentToken, T_LPAREN))
+    {
+        // Emit the token, advance the parser, and parse the remainder as a 
+        // boolean expression
+        m_generator->emitToken(m_currentToken);
+        nextToken();
+        boolean_expression();
+       
+        // Check for the closing ')'
+        if (Token::isKind(m_currentToken, T_RPAREN))
+        {
+            // Emit the token, advance the parser
+            m_generator->emitToken(m_currentToken);
+            nextToken();
+
+            // If we have a comparison operator (<, >, <=, >=, !=, ==)
+            // then we need to emit it and parse the remainder as a boolean
+            // expression
+            if (Token::isComparisonOperator(m_currentToken))
+            {
+                m_generator->emitToken(m_currentToken);
+                nextToken();
+                boolean_expression();
+            } 
+        }
+        else
+        {
+            // Error, unmatched parenthesis
+            abort("Expected a RPAREN.");
+        }
+    }
+    else 
+    {
+        // If we are here then we have either an identifier or a literal
+        if (Token::isKind(m_currentToken, T_IDENT))
+        {
+            // Check that the identifier has been declared
+            if (!variableHasBeenDeclared(m_currentToken.lexeme()))
+            {
+                abort("Attempt to reference an undeclared variable.");
+            }
+        }
+        else
+        {
+            if (!Token::isKind(m_currentToken, T_NUM))
+            {
+                abort("Unexpected token encountered in boolean expression.");
+            }
+        }
+
+       m_generator->emitToken(m_currentToken);
+       nextToken();
+
+       // We should have a comparison operator here
+       if (Token::isComparisonOperator(m_currentToken))
+       {
+           m_generator->emitToken(m_currentToken);
+           nextToken();
+
+           // We could optionally have a '!' here
+            if (Token::isKind(m_currentToken, T_NOT))
+            {
+                m_generator->emitToken(m_currentToken);
+                nextToken();
+            } 
+
+            // We could optionally have a '(' here
+            if (Token::isKind(m_currentToken, T_LPAREN))
+            {
+                // Emit the token, advance the parser, and parse as boolean expression
+                m_generator->emitToken(m_currentToken);
+                nextToken();
+                boolean_expression();
+
+                // Check for the closing ')'
+                if (Token::isKind(m_currentToken, T_RPAREN))
+                {
+                    m_generator->emitToken(m_currentToken);
+                    nextToken();
+                }
+                else 
+                {
+                    abort("Expected a RPAREN.");
+                }
+            }
+            else 
+            {
+                // We should have either an identifer or a literal here
+                if (Token::isKind(m_currentToken, T_IDENT))
+                {
+                    // Check that the identifier has been declared
+                    if (!variableHasBeenDeclared(m_currentToken.lexeme()))
+                    {
+                        abort("Attempt to reference an undeclared variable.");
+                    }
+                }
+                else
+                {
+                    if (!Token::isKind(m_currentToken, T_NUM))
+                    {
+                        abort("Unexpected token encountered in boolean expression.");
+                    }
+                }
+
+                // Emit the token and advance the parser
+                m_generator->emitToken(m_currentToken);
+                nextToken();
+            }
+       }
+       else 
+       {
+           abort("Unexpected token encountered in boolean expression. Expected a boolean comparison.");
+       }
+    }
 }
 
 void Parser::isStringOrIdent()
@@ -426,4 +643,6 @@ void Parser::abort(const char* msg) const
 void Parser::nextToken() 
 {
     m_currentToken = m_lexer->getToken();
+    while (Token::isKind(m_currentToken, T_NEWLINE))
+        m_currentToken = m_lexer->getToken();
 }

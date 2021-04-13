@@ -24,6 +24,12 @@ public:
     // Writes a given token to the output
     void emitToken(Token token);
 
+    // Emits the start of a code block
+    void emitBlockStart();
+
+    // Emits the end of a code block
+    void emitBlockEnd();
+
     // Writes a line ending character
     void emitLineEnd();
 

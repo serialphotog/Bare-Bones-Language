@@ -33,6 +33,13 @@ public:
         return tok.type() >= 200 && tok.type() < 300;
     }
 
+    // Checks if a token is a comparison operator. This is an easy check since 
+    // comparision operators have a value > 120 && < 130
+    static bool isComparisonOperator(Token tok) 
+    {
+        return tok.type() > 120 && tok.type() < 130;
+    }
+
     // Checks if a token is of a given type.
     static bool isKind(Token tok, TokenType type) 
     {

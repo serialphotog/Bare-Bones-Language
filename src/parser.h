@@ -96,6 +96,7 @@ private:
     void output();
     void assignment();
     void arithmetic_expression();
+    void boolean_expression();
     void factor();
     void numeric_value(); 
     void endl();
