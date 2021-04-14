@@ -220,6 +220,64 @@ void Parser::if_else()
 void Parser::while_loop()
 {
     print_parse("<while_loop>");
+
+    // The next token should be a '('
+    m_generator->emitToken(m_currentToken);
+    nextToken();
+    if (Token::isKind(m_currentToken, T_LPAREN))
+    {
+        // Next should be a boolean expression
+        m_generator->emitToken(m_currentToken);
+        nextToken();
+        boolean_expression();
+
+        // Check for the closing ')'
+        if (Token::isKind(m_currentToken, T_RPAREN))
+        {
+            m_generator->emitToken(m_currentToken);
+            nextToken();
+
+            // Check for the start of the code block
+            if (Token::isKind(m_currentToken, T_LBRACE))
+            {
+                m_generator->emitBlockStart();
+                nextToken();
+
+                // Parse the statement list
+                while (!Token::isKind(m_currentToken, T_RBRACE))
+                {
+                    statement();
+                }
+
+                // Check for the closing '}'
+                if (Token::isKind(m_currentToken, T_RBRACE))
+                {
+                    m_generator->emitBlockEnd();
+                    nextToken();
+                }
+                else
+                {
+                    // Error, expected a '}' token
+                    abort("Expected a '}' token.");
+                }
+            }
+            else
+            {
+                // Error, expected a '{'
+                abort("Expected a '{' token.");
+            }
+        }
+        else
+        {
+            // Error, expected a ')'
+            abort("Expected a RPAREN.");
+        }
+    }
+    else
+    {
+        // Error, expected a '('
+        abort("Expected a LPAREN.");
+    }
 }
 
 void Parser::for_loop()
