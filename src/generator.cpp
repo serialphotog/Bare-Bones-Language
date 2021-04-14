@@ -74,7 +74,11 @@ void Generator::emitInitializations(const std::vector<std::string> identifierMap
         }
 #endif
 
-        m_file << "int " << identifierMap[i] << ";\n";
+        m_file << "int " << identifierMap[i] << ";";
+
+#ifdef PRETTY_PRINT
+        m_file << "\n";
+#endif
     }
 
 #ifdef PRETTY_PRINT
@@ -177,7 +181,11 @@ void Generator::emitBlockEnd()
         m_line << "\t";
 #endif
 
-    m_line << "}\n";
+    m_line << "}";
+
+#ifdef PRETTY_PRINT
+    m_line << "\n";
+#endif
 
     // Push the line to the vector and clear it for future use
     m_lines.push_back(m_line.str());
