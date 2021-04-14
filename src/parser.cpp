@@ -52,6 +52,9 @@ void Parser::statement()
         case T_WHILE:
             while_loop();
             break;
+        case T_DOTIMES:
+            dotimes_loop();
+            break;
         case T_PRINT:
             output();
             break;
@@ -283,6 +286,89 @@ void Parser::while_loop()
 void Parser::for_loop()
 {
     print_parse("<for_loop>");
+}
+
+void Parser::dotimes_loop()
+{
+    print_parse("<dotimes_loop>");
+
+    // Next we should have a '('
+    nextToken();
+    if (Token::isKind(m_currentToken, T_LPAREN))
+    {
+        // Check for the identifier or numeric value
+        nextToken();
+        Token nTimes("", T_UNKNOWN);
+        if (Token::isKind(m_currentToken, T_IDENT))
+        {
+            // Check that the identifier has been previously declared
+            if (variableHasBeenDeclared(m_currentToken.lexeme()))
+            {
+                // save the identifer for when we generate the loop header in 
+                // the output. 
+                nTimes = m_currentToken;
+            }
+            else
+            {
+                abort("Attempt to reference an undeclared identifier.");
+            }
+        }
+        else if (Token::isKind(m_currentToken, T_NUM))
+        {
+            nTimes = m_currentToken; 
+        }
+        else
+        {
+            abort("Expected an identifier or literal value.");
+        }
+
+        // Ensure that we have the closing ')' 
+        nextToken();
+        if (Token::isKind(m_currentToken, T_RPAREN) 
+            && !Token::isKind(nTimes, T_UNKNOWN))
+        {
+            // Emit the loop header
+            m_generator->emitDoTimes(nTimes);
+
+            // Next should be the start of a code block
+            nextToken();
+            if (Token::isKind(m_currentToken, T_LBRACE))
+            {
+                // Handle the statement list
+                m_generator->emitBlockStart();
+                nextToken();
+
+                while (!Token::isKind(m_currentToken, T_RBRACE))
+                {
+                    statement();
+                }
+
+                // Check for the '}' token
+                if (Token::isKind(m_currentToken, T_RBRACE))
+                {
+                    m_generator->emitBlockEnd();
+                    nextToken();
+                }
+                else
+                {
+                    abort("Expected a '}' token.");
+                }
+            }
+            else
+            {
+                abort("Expected a '{' token.");
+            }
+        }
+        else
+        {
+            abort("Expected a RPAREN.");
+        }
+    }
+    else
+    {
+        // Error, expected a '('
+        abort("Expected a LPAREN.");
+    }
 }
 
 void Parser::boolean_expression()

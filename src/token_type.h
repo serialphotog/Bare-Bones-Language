@@ -47,6 +47,7 @@ enum TokenType
     T_FOR = 303,        // for
     T_WHILE = 304,      // while
     T_PRINT = 305,      // print
+    T_DOTIMES = 306,    // dotimes
 };
 
 #endif

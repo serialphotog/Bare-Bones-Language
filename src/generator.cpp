@@ -127,6 +127,20 @@ void Generator::emitPrint(const std::string& str, const std::vector<std::string>
     emitTight(ss.str().c_str());
 }
 
+void Generator::emitDoTimes(Token token)
+{
+    // Output the start of the resulting for loop
+#ifdef PRETTY_PRINT
+    if (m_startOfLine)
+        for (int i=0; i<m_indentLevel; i++)
+            m_line << "\t";
+#endif
+
+    m_line << "for (int i_dotimes_loop_counter_var=0; i_dotimes_loop_counter_var<";
+    m_line << token.lexeme();
+    m_line << "; i_dotimes_loop_counter_var++)"; 
+}
+
 void Generator::emit(const char* sequence)
 {
     // Write a space if this isn't the start of a line

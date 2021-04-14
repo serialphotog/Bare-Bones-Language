@@ -33,6 +33,9 @@ public:
     // Writes a line ending character
     void emitLineEnd();
 
+    // Emits the dotimes loop to the output.
+    void emitDoTimes(Token token);
+
     // Emits the internal portion of a printf for the implementation of our
     // print() call
     void emitPrint(const std::string& str, const std::vector<std::string>& idents);

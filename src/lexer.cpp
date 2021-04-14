@@ -257,6 +257,10 @@ Token Lexer::checkIfKeyword(std::string& lexeme)
     {
         TOKEN(lexeme, T_WHILE);
     }
+    else if (lexeme == "dotimes")
+    {
+        TOKEN(lexeme, T_DOTIMES);
+    }
     else if (lexeme == "print")
     {
         TOKEN(lexeme, T_PRINT);
