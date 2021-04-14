@@ -536,6 +536,24 @@ void Parser::assignment()
         // Here we can either have a literal value or an arithmetic expression
         if (Token::isKind(m_currentToken, T_NUM))
             numeric_value(); // Attempt to parse as a numeric value
+        else if (Token::isKind(m_currentToken, T_IDENT))
+        {
+            // Check that the identifier has bee previously declared
+            if (variableHasBeenDeclared(m_currentToken.lexeme()))
+            {
+                m_generator->emitToken(m_currentToken);
+                nextToken();
+            }
+            else
+            {
+                abort("Attempt to reference a previously undeclared identifier.");
+            }
+        }
+        else 
+        {
+            // Error, expected a literal or identifier
+            abort("Expected a literal value or an identifier.");
+        }
 
         // Handle arithmetic expressions
         while (Token::isOperator(m_currentToken))
