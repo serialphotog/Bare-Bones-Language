@@ -58,6 +58,9 @@ void Parser::statement()
         case T_PRINT:
             output();
             break;
+        case T_READ:
+            read();
+            break;
         case T_IDENT:
             // Ensure that the variable has been previously declared
             if (variableHasBeenDeclared(m_currentToken.lexeme()))
@@ -110,7 +113,9 @@ void Parser::declaration()
             else
             {
                 // This is just a declaration, the next token should be a ';'
-                endl();
+                if (!Token::isKind(m_currentToken, T_SEMICOLON))
+                    abort("Expected a ';'");
+                nextToken();
             }
         }
         else
@@ -603,8 +608,66 @@ void Parser::output()
     }
     else
     {
-        // Error, expeceted a L_PAREN
+        // Error, expected a L_PAREN
         abort("Expected L_PAREN for the call to `print`");
+    }
+}
+
+void Parser::read()
+{
+    print_parse("<read>");
+
+    // The next token should be a '('
+    nextToken();
+    if (Token::isKind(m_currentToken, T_LPAREN))
+    {
+        // Next should be an identifer
+        nextToken();
+        if (Token::isKind(m_currentToken, T_IDENT))
+        {
+            // The identifier needs to have been previously declared
+            if (variableHasBeenDeclared(m_currentToken.lexeme()))
+            {
+                // Store the identifier for when we emit the read to the output
+                Token identifier = m_currentToken;
+
+                // Ensure that we have the ending ')' and ';'
+                nextToken();
+                if (Token::isKind(m_currentToken, T_RPAREN))
+                {
+                    nextToken();
+                    if (Token::isKind(m_currentToken, T_SEMICOLON))
+                    {
+                        // Emit the print to the output
+                        m_generator->emitRead(identifier);
+                        nextToken();
+                    }
+                    else
+                    {
+                        abort("Expected a line endinge (;).");
+                    }
+                }
+                else
+                {
+                    // Expected a ')'
+                    abort("Expected a R_PAREN.");
+                }
+            }
+            else
+            {
+                // Error, attempt to reference an undeclared variable
+                abort("Attempt to reference a uninitialized identifier.");
+            }
+        }
+        else
+        {
+            // Error, expected an identifier
+            abort("Expected an identifier to read into.");
+        }
+    }
+    else
+    {
+        abort("Expected a L_PAREN.");
     }
 }
 

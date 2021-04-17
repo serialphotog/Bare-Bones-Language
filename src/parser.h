@@ -33,7 +33,7 @@ The grammar for the bare bones language (bb) is as follows:
 // I/O
 <output> --> print(<output_seq>); 
 <output_seq> --> <string> | <identifier> | <string, <identifier>
-<input> --> read();
+<input> --> read(<identifier>);
 
 // Base constructs
 <identifier> --> String of characters 
@@ -101,6 +101,7 @@ private:
     void for_loop();
     void dotimes_loop();
     void output();
+    void read();
     void assignment();
     void arithmetic_expression();
     void boolean_expression();

@@ -48,6 +48,7 @@ enum TokenType
     T_WHILE = 304,      // while
     T_PRINT = 305,      // print
     T_DOTIMES = 306,    // dotimes
+    T_READ = 307,       // read
 };
 
 #endif

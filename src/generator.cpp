@@ -141,6 +141,28 @@ void Generator::emitDoTimes(Token token)
     m_line << "; i_dotimes_loop_counter_var++)"; 
 }
 
+void Generator::emitRead(Token identifier)
+{
+#ifdef PRETTY_PRINT
+    if (m_startOfLine)
+        for (int i=0; i<m_indentLevel; i++)
+            m_line << "\t";
+#endif
+
+    m_line << "scanf(\"%d\", &";
+    m_line << identifier.lexeme();
+    m_line << ");";
+
+#ifdef PRETTY_PRINT
+    m_line << "\n";
+#endif
+
+    m_lines.push_back(m_line.str());
+    m_line.str("");
+    m_line.clear();
+    m_startOfLine = true;
+}
+
 void Generator::emit(const char* sequence)
 {
     // Write a space if this isn't the start of a line

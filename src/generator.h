@@ -36,6 +36,9 @@ public:
     // Emits the dotimes loop to the output.
     void emitDoTimes(Token token);
 
+    // Emits a read(<identifier>) to the output
+    void emitRead(Token identifier);
+
     // Emits the internal portion of a printf for the implementation of our
     // print() call
     void emitPrint(const std::string& str, const std::vector<std::string>& idents);

@@ -273,6 +273,10 @@ Token Lexer::checkIfKeyword(std::string& lexeme)
     {
         TOKEN(lexeme, T_OR);
     }
+    else if (lexeme == "read")
+    {
+        TOKEN(lexeme, T_READ);
+    }
 
     return token;
 }
