@@ -16,7 +16,6 @@ enum TokenType
     T_MINUS = 202,      // -
     T_DIV = 203,        // /
     T_MUL = 204,        // *
-    T_NEQ = 206,        // !=
     T_MOD = 212,        // %
 
     // Everthing Else
@@ -38,7 +37,7 @@ enum TokenType
     T_GTEQ = 125,       // >=
     T_AND = 126,        // and
     T_OR = 127,         // or 
-
+    T_NEQ = 128,        // !=
 
     // Keywords
     T_LET = 300,        // let
