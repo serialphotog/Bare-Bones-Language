@@ -63,7 +63,7 @@ void Parser::statement()
             break;
         case T_IDENT:
             // Ensure that the variable has been previously declared
-            if (variableHasBeenDeclared(m_currentToken.lexeme()))
+            if (identifierHasBeenDeclared(m_currentToken.lexeme()))
             {
                 // Output the identifier and advance the parser
                 m_generator->emitToken(m_currentToken);
@@ -92,7 +92,7 @@ void Parser::declaration()
     if (Token::isKind(m_currentToken, T_IDENT))
     {
         // Check that we aren't trying to redeclare a variable
-        if (!variableHasBeenDeclared(m_currentToken.lexeme()))
+        if (!identifierHasBeenDeclared(m_currentToken.lexeme()))
         {
             // Add the variable to the variable map
             pushVariable(m_currentToken.lexeme());
@@ -305,16 +305,11 @@ void Parser::dotimes_loop()
         if (Token::isKind(m_currentToken, T_IDENT))
         {
             // Check that the identifier has been previously declared
-            if (variableHasBeenDeclared(m_currentToken.lexeme()))
-            {
-                // save the identifer for when we generate the loop header in 
-                // the output. 
-                nTimes = m_currentToken;
-            }
-            else
-            {
-                abort("Attempt to reference an undeclared identifier.");
-            }
+            checkValidIdentifier(m_currentToken);
+
+            // save the identifer for when we generate the loop header in 
+            // the output. 
+            nTimes = m_currentToken;
         }
         else if (Token::isKind(m_currentToken, T_NUM))
         {
@@ -425,10 +420,7 @@ void Parser::boolean_expression()
         if (Token::isKind(m_currentToken, T_IDENT))
         {
             // Check that the identifier has been declared
-            if (!variableHasBeenDeclared(m_currentToken.lexeme()))
-            {
-                abort("Attempt to reference an undeclared variable.");
-            }
+            checkValidIdentifier(m_currentToken);
         }
         else
         {
@@ -479,10 +471,7 @@ void Parser::boolean_expression()
                 if (Token::isKind(m_currentToken, T_IDENT))
                 {
                     // Check that the identifier has been declared
-                    if (!variableHasBeenDeclared(m_currentToken.lexeme()))
-                    {
-                        abort("Attempt to reference an undeclared variable.");
-                    }
+                    checkValidIdentifier(m_currentToken);
                 }
                 else
                 {
@@ -513,7 +502,7 @@ void Parser::isStringOrIdent()
     }        
 
     if (Token::isKind(m_currentToken, T_IDENT) 
-        && !variableHasBeenDeclared(m_currentToken.lexeme()))
+        && !identifierHasBeenDeclared(m_currentToken.lexeme()))
     {
         abort("Attempt to print an undeclared variable.");
     }
@@ -624,29 +613,23 @@ void Parser::read()
         if (Token::isKind(m_currentToken, T_IDENT))
         {
             // The identifier needs to have been previously declared
-            if (variableHasBeenDeclared(m_currentToken.lexeme()))
-            {
-                // Store the identifier for when we emit the read to the output
-                Token identifier = m_currentToken;
+            checkValidIdentifier(m_currentToken);
 
-                // Ensure that we have the ending ')' and ';'
+            // Store the identifier for when we emit the read to the output
+            Token identifier = m_currentToken;
+
+            // Ensure that we have the ending ')' and ';'
+            nextToken();
+            if (Token::isKind(m_currentToken, T_RPAREN))
+            {
                 nextToken();
-                if (Token::isKind(m_currentToken, T_RPAREN))
-                {
-                    nextToken();
-                    endl(false);
-                    m_generator->emitRead(identifier);
-                }
-                else
-                {
-                    // Expected a ')'
-                    abort("Expected a R_PAREN.");
-                }
+                endl(false);
+                m_generator->emitRead(identifier);
             }
             else
             {
-                // Error, attempt to reference an undeclared variable
-                abort("Attempt to reference a uninitialized identifier.");
+                // Expected a ')'
+                abort("Expected a R_PAREN.");
             }
         }
         else
@@ -678,15 +661,9 @@ void Parser::assignment()
         else if (Token::isKind(m_currentToken, T_IDENT))
         {
             // Check that the identifier has bee previously declared
-            if (variableHasBeenDeclared(m_currentToken.lexeme()))
-            {
-                m_generator->emitToken(m_currentToken);
-                nextToken();
-            }
-            else
-            {
-                abort("Attempt to reference a previously undeclared identifier.");
-            }
+            checkValidIdentifier(m_currentToken);
+            m_generator->emitToken(m_currentToken);
+            nextToken();
         }
         else 
         {
@@ -727,7 +704,7 @@ void Parser::factor()
         else
         {
             // Ensure that the identifier has been previously declared
-            if (variableHasBeenDeclared(m_currentToken.lexeme()))
+            if (identifierHasBeenDeclared(m_currentToken.lexeme()))
             {
                 // emit the token and advance the parser
                 m_generator->emitToken(m_currentToken);
@@ -836,7 +813,13 @@ void Parser::endl(bool emit)
     }
 }
 
-bool Parser::variableHasBeenDeclared(std::string var) const
+void Parser::checkValidIdentifier(Token identifier) const
+{
+    if (!identifierHasBeenDeclared(identifier.lexeme()))
+        abort("Attempt to reference an undeclared identifier.");
+}
+
+bool Parser::identifierHasBeenDeclared(std::string var) const
 {
     // Search the variable map for the given key
     return std::find(m_variableMap.begin(), m_variableMap.end(), 

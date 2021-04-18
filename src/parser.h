@@ -82,7 +82,7 @@ private:
 
     // Checks if a variable has been previously declared by searching the 
     // variable map vector
-    bool variableHasBeenDeclared(std::string var) const;
+    bool identifierHasBeenDeclared(std::string var) const;
 
     // Pushes a variable name onto the variable map
     void pushVariable(std::string var);
@@ -108,6 +108,8 @@ private:
     void factor();
     void numeric_value(); 
     void endl(bool emit);
+
+    void checkValidIdentifier(Token identifier) const;
 
     // Helper function for <output> to verify that we have either a string
     // literal or an identifier without consuming the current token.
