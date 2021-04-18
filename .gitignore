@@ -4,3 +4,6 @@ a.out
 
 # Build Files
 [Bb]uild/*
+
+# Visual Studio
+.vs/*
