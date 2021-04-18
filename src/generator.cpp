@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "bb.h"
 #include "token_type.h"
 
 Generator::Generator(const char* path)
@@ -19,24 +18,21 @@ Generator::Generator(const char* path)
     }   
 }
 
+Generator::~Generator()
+{
+    // Close the output file
+    m_file.close();
+}
+
 void Generator::emitProgram(const std::vector<std::string>& identifierMap)
 {
     // Start by writing the necessary includes
     m_file << "#include <stdio.h>\n";
-
-#ifdef PRETTY_PRINT
-    // The pretty print option is enabled in `bb.h`. Add an extra newline for
-    // better readability
-    m_file << "\n";
-#endif
+    pprint_fileLineEnd();
 
     // Start the main()
     m_file << "void main() {";
-
-#ifdef PRETTY_PRINT
-    m_file << "\n";
-    m_startOfLine = true;
-#endif
+    pprint_fileLineEndStart();
 
     // Initialize the identifiers
     emitInitializations(identifierMap);
@@ -65,32 +61,12 @@ void Generator::emitInitializations(const std::vector<std::string> identifierMap
     // Iterate over all of the identifiers and declare them in the output
     for (int i=0; i < identifierMap.size(); i++)
     {
-#ifdef PRETTY_PRINT
-        // The pretty print option is enabled in `bb.h`, add a tab for better
-        // readability
-        if (m_startOfLine)
-        {
-            m_file << "\t";
-        }
-#endif
-
+        pprint_fileLineStart();
         m_file << "int " << identifierMap[i] << ";";
-
-#ifdef PRETTY_PRINT
-        m_file << "\n";
-#endif
+        pprint_fileLineEnd();
     }
 
-#ifdef PRETTY_PRINT
-    // the pretty print option is enabled, add an extra newline to the output
-    m_file << "\n";
-#endif
-}
-
-Generator::~Generator()
-{
-    // Close the output file
-    m_file.close();
+    pprint_fileLineEnd();
 }
 
 void Generator::emitPrint(const std::string& str, const std::vector<std::string>& idents)
@@ -130,11 +106,7 @@ void Generator::emitPrint(const std::string& str, const std::vector<std::string>
 void Generator::emitDoTimes(Token token)
 {
     // Output the start of the resulting for loop
-#ifdef PRETTY_PRINT
-    if (m_startOfLine)
-        for (int i=0; i<m_indentLevel; i++)
-            m_line << "\t";
-#endif
+    pprint_lineStart();
 
     m_line << "for (int i_dotimes_loop_counter_var=0; i_dotimes_loop_counter_var<";
     m_line << token.lexeme();
@@ -143,38 +115,18 @@ void Generator::emitDoTimes(Token token)
 
 void Generator::emitRead(Token identifier)
 {
-#ifdef PRETTY_PRINT
-    if (m_startOfLine)
-        for (int i=0; i<m_indentLevel; i++)
-            m_line << "\t";
-#endif
+    pprint_lineStart();
 
     m_line << "scanf(\"%d\", &";
     m_line << identifier.lexeme();
     m_line << ");";
-
-#ifdef PRETTY_PRINT
-    m_line << "\n";
-#endif
-
-    m_lines.push_back(m_line.str());
-    m_line.str("");
-    m_line.clear();
-    m_startOfLine = true;
+    pprint_lineEnd();
+    flushLine(true);
 }
 
 void Generator::emit(const char* sequence)
 {
-    // Write a space if this isn't the start of a line
-    if (m_startOfLine)
-    {
-#ifdef PRETTY_PRINT
-    // The pretty print option is enable in `bb.h`. Add a \t for easier to 
-    // read output
-    for (int i=0; i < m_indentLevel; i++)
-        m_line << "\t";
-#endif
-    }
+    pprint_lineStart();
 
     // Write the output
     m_line << sequence;
@@ -188,11 +140,7 @@ void Generator::emitTight(const char* sequence)
 
 void Generator::emitBlockStart()
 {
-#ifdef PRETTY_PRINT
-    // Pretty print is set, add a space for better readability
-    m_line << " ";
-#endif
-
+    pprint_space();
     m_line << "{";
 
 #ifdef PRETTY_PRINT
@@ -201,49 +149,23 @@ void Generator::emitBlockStart()
     m_line << "\n";
     m_indentLevel++;
     m_startOfLine = true;
-
-    // Push the line to the vector and clear it for future use
-    m_lines.push_back(m_line.str());
-    m_line.str("");
-    m_line.clear();
+    flushLine(false);
 #endif
 }   
 
 void Generator::emitBlockEnd()
 {
-#ifdef PRETTY_PRINT
-    m_indentLevel--;
-    for (int i=0; i < m_indentLevel; i++)
-        m_line << "\t";
-#endif
-
+    pprint_lineStartEnd();
     m_line << "}";
-
-#ifdef PRETTY_PRINT
-    m_line << "\n";
-#endif
-
-    // Push the line to the vector and clear it for future use
-    m_lines.push_back(m_line.str());
-    m_line.str("");
-    m_line.clear();
+    pprint_lineEnd();
+    flushLine(false);
 }
 
 void Generator::emitLineEnd()
 {
     m_line << ";";
-
-#ifdef PRETTY_PRINT
-    // The pretty print option is enabled in `bb.h`, add a newline for easier
-    // output debugging
-    m_line << "\n";
-    m_startOfLine = true;
-#endif
-
-    // Push the line to the lines vector and clear it for future use
-    m_lines.push_back(m_line.str());
-    m_line.str("");
-    m_line.clear();
+    pprint_lineEndStart();
+    flushLine(false);
 }
 
 void Generator::emitToken(Token token)
@@ -265,10 +187,8 @@ void Generator::emitToken(Token token)
     } 
     else if (Token::isComparisonOperator(token))
     {
-#ifdef PRETTY_PRINT
-        // Pretty print mode is enabled, add a space for better readability
-        emitTight(" ");
-#endif
+        pprint_space();
+
         if (Token::isKind(token, T_AND))
             emit("&&");
         else if (Token::isKind(token, T_OR))
@@ -276,10 +196,7 @@ void Generator::emitToken(Token token)
         else
             emit(token.lexeme().c_str());
 
-#ifdef PRETTY_PRINT
-        // Pretty print mode is enabled, add a space for better readability
-        emitTight(" ");
-#endif
+        pprint_space();
     }
     else 
     {
@@ -308,10 +225,7 @@ void Generator::emitKeyword(Token token)
         case T_FOR:
         case T_WHILE:
             emit(token.lexeme().c_str());
-#ifdef PRETTY_PRINT
-            // Pretty print mode is enabled, add a space for better readability
-            emit(" ");
-#endif
+            pprint_space();
             break;
         // A few need special treatment, however
         case T_LET:
@@ -332,14 +246,18 @@ void Generator::emitOperator(Token token)
      {
         // Handle the operators that are identical to those in C
         default:
-#ifdef PRETTY_PRINT
-            // Add a space after operator when pretty print mode is enabled
-            emit(" ");
-#endif
+           pprint_space();
            emit(token.lexeme().c_str()); 
-#ifdef PRETTY_PRINT
-            // Add a space after operator when pretty print mode is enabled
-            emit(" ");
-#endif
+           pprint_space();
      }
+}
+
+void Generator::flushLine(bool startOfLine)
+{
+    m_lines.push_back(m_line.str());
+    m_line.str("");
+    m_line.clear();
+
+    if (startOfLine)
+        m_startOfLine = true;
 }
