@@ -107,7 +107,7 @@ private:
     void boolean_expression();
     void factor();
     void numeric_value(); 
-    void endl();
+    void endl(bool emit);
 
     // Helper function for <output> to verify that we have either a string
     // literal or an identifier without consuming the current token.

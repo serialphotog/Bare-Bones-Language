@@ -113,9 +113,7 @@ void Parser::declaration()
             else
             {
                 // This is just a declaration, the next token should be a ';'
-                if (!Token::isKind(m_currentToken, T_SEMICOLON))
-                    abort("Expected a ';'");
-                nextToken();
+                endl(false);
             }
         }
         else
@@ -604,7 +602,7 @@ void Parser::output()
         }
 
         // Ensure that the line ends with a ';'
-        endl();
+        endl(true);
     }
     else
     {
@@ -636,16 +634,8 @@ void Parser::read()
                 if (Token::isKind(m_currentToken, T_RPAREN))
                 {
                     nextToken();
-                    if (Token::isKind(m_currentToken, T_SEMICOLON))
-                    {
-                        // Emit the print to the output
-                        m_generator->emitRead(identifier);
-                        nextToken();
-                    }
-                    else
-                    {
-                        abort("Expected a line endinge (;).");
-                    }
+                    endl(false);
+                    m_generator->emitRead(identifier);
                 }
                 else
                 {
@@ -716,7 +706,7 @@ void Parser::assignment()
         }
 
         // Ensure we end with a ';'
-        endl();
+        endl(true);
     }
     else 
     {
@@ -830,12 +820,13 @@ void Parser::numeric_value()
     }
 }
 
-void Parser::endl()
+void Parser::endl(bool emit)
 {
     if (Token::isKind(m_currentToken, T_SEMICOLON))
     {
-        // emit a line ending and advance the parser
-        m_generator->emitLineEnd();
+        // emit a line ending (if needed) and advance the parser
+        if (emit)
+            m_generator->emitLineEnd();
         nextToken();
     }
     else
