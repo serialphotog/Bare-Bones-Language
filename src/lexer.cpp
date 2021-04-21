@@ -249,10 +249,6 @@ Token Lexer::checkIfKeyword(std::string& lexeme)
     {
         TOKEN(lexeme, T_ELSE);
     }
-    else if (lexeme == "for")
-    {
-        TOKEN(lexeme, T_FOR);
-    }
     else if (lexeme == "while")
     {
         TOKEN(lexeme, T_WHILE);

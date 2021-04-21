@@ -46,9 +46,6 @@ void Parser::statement()
         case T_IF:
             if_else();
             break;
-        case T_FOR:
-            for_loop();
-            break;
         case T_WHILE:
             while_loop();
             break;
@@ -284,11 +281,6 @@ void Parser::while_loop()
         // Error, expected a '('
         abort("Expected a LPAREN.");
     }
-}
-
-void Parser::for_loop()
-{
-    print_parse("<for_loop>");
 }
 
 void Parser::dotimes_loop()

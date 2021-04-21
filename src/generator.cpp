@@ -222,7 +222,6 @@ void Generator::emitKeyword(Token token)
         // they are in our output language (C).
         case T_IF:
         case T_ELSE:
-        case T_FOR:
         case T_WHILE:
             emit(token.lexeme().c_str());
             pprint_space();

@@ -26,7 +26,6 @@ The grammar for the bare bones language (bb) is as follows:
     | if (<boolean_expression>) { <statement_list> }
 <loop> --> <while_loop> | <for_loop>
 <while_loop> --> while (<boolean_expression>) { <statement_list> }
-<for_loop> --> TODO: THIS
 <dotimes_loop> --> dotimes (<numeric_value>) { <statement_list> } |
     dotimes (<identifier>) { <statement_list> } |
 
@@ -98,7 +97,6 @@ private:
     void declaration();
     void if_else();
     void while_loop();
-    void for_loop();
     void dotimes_loop();
     void output();
     void read();

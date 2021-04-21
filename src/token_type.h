@@ -43,11 +43,10 @@ enum TokenType
     T_LET = 300,        // let
     T_IF = 301,         // if
     T_ELSE = 302,
-    T_FOR = 303,        // for
-    T_WHILE = 304,      // while
-    T_PRINT = 305,      // print
-    T_DOTIMES = 306,    // dotimes
-    T_READ = 307,       // read
+    T_WHILE = 303,      // while
+    T_PRINT = 304,      // print
+    T_DOTIMES = 305,    // dotimes
+    T_READ = 306,       // read
 };
 
 #endif
