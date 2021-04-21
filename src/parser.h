@@ -24,7 +24,7 @@ The grammar for the bare bones language (bb) is as follows:
 // Control Structures
 <if_else> --> if (<boolean_expression>) { <statement_list> } else { <statement_list> } 
     | if (<boolean_expression>) { <statement_list> }
-<loop> --> <while_loop> | <for_loop>
+<loop> --> <while_loop> | <dotimes_loop>
 <while_loop> --> while (<boolean_expression>) { <statement_list> }
 <dotimes_loop> --> dotimes (<numeric_value>) { <statement_list> } |
     dotimes (<identifier>) { <statement_list> } |
@@ -92,21 +92,66 @@ private:
     // Gets the next token and updates the look ahead token
     void nextToken();
 
-    /* The following perform parsing on the production rules */
+    /*
+     * The following perform parsing on the production rules for the language
+     */
+
+    // <statement> --> <declaration> | <assignment> | <if_else> | <loop> |
+    //      <input> | <output>
     void statement();
+
+    // <declaration> --> let <identifier>; | let <assignment>
     void declaration();
-    void if_else();
-    void while_loop();
-    void dotimes_loop();
-    void output();
-    void read();
+
+    // <assignment> --> <identifier> = <numeric_value> |
+    //      <arithmetic_expression>;
     void assignment();
+
+    // <if_else> --> if (<boolean_expression>) { <statement_list> } else { <statement_list> } 
+    //      if (<boolean_expression>) { <statement_list> }
+    void if_else();
+
+    // <while_loop> --> while (<boolean_expression>) { <statement_list> }
+    void while_loop();
+
+    // <dotimes_loop> --> dotimes (<numeric_value>) { <statement_list> } |
+    //      dotimes(<identifier>) { <statement_list> } |
+    void dotimes_loop();
+
+    // <output> --> print(<output_seq>); 
+    void output();
+
+    // <input> -- > read(<identifier>);
+    void read();
+
+    // <arithmetic_expression> --> <numeric_value> <math_op> <factor>; |
+    //      <numeric_value> <math_op> (<arithmetic_expression>); |
+    //      <numeric_value> <math_op> <arithmetic_expression>
     void arithmetic_expression();
+
+    // <boolean_expression> --> [!] (<identifier> | <literal>) <comparison_operator> (<identifier> | <literal>)
+    //  | [!] <boolean_expression> ) | [!] <boolean_expression> <comparison_operator> <boolean_expression>
+    //  | [!](<identifier> | <literal>) < comparison_operator > <boolean_expression>
     void boolean_expression();
+
+    // <factor> --> <identifier> | <numeric_value> | ( <arithmetic_expression> )
     void factor();
+
+    // Checks for any valid numeric (integer) value. 
     void numeric_value(); 
+
+    // Checks for a line ending (semicolon). 
+    // The emit flag indicates rather or not we should emit a line ending to the
+    // generated output. This is needed because, in some cases, the generator
+    // handles the line ending for us.
     void endl(bool emit);
 
+    /*
+    * The following are helper functions for parsing the langauge production
+    * rules.
+    */
+
+    // A helper function to check if a given identifier is valid
     void checkValidIdentifier(Token identifier) const;
 
     // Helper function for <output> to verify that we have either a string
