@@ -1,3 +1,12 @@
+/*
+File: lexer.cpp
+Author: Adam Thompson
+Course: CSC 407
+
+Contains the implementation for the `Lexer` class. 
+*/
+
+
 #include "lexer.h"
 
 #include "bb.h"

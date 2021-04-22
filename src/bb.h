@@ -1,3 +1,13 @@
+/*
+File: bb.h
+Author: Adam Thompson
+Course: CSC 407
+
+This file contains various build configuration parameters
+as well as some helpers for printing debug information.
+*/
+
+
 #ifndef __BB_H__
 #define __BB_H__
 

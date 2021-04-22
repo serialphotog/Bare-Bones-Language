@@ -1,3 +1,12 @@
+/*
+File: lexer.h
+Author: Adam Thompson
+Course: CSC 407
+
+Definitions for the lexer/tokenizer.
+*/
+
+
 #ifndef __LEXER_H__
 #define __LEXER_H__
 
@@ -13,6 +22,11 @@
 // and printing the debug output (if enabled).
 #define TOKEN(lexeme, type) token = Token(lexeme, type); print_lex(token)
 
+/*
+The `Lexer` is responsible for reading a text file of program
+code and converting it into the appropriate tokens, which are
+later used by the parser.
+*/
 class Lexer
 {
 public:

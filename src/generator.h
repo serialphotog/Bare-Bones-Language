@@ -1,3 +1,12 @@
+/*
+File: generator.h
+Author: Adam Thompson
+Course: CSC 407
+
+This file contains definitions for the code generator.
+*/
+
+
 #ifndef __GENERATOR_H__
 #define __GENERATOR_H__
 
@@ -8,6 +17,11 @@
 #include "bb.h"
 #include "token.h"
 
+/*
+The `Generator` class is responsible for writing the correctly formatted 
+code output for the language. This code generator emits C code, but it 
+would be pretty straightforward to implement other language generators. 
+*/
 class Generator
 {
 public:

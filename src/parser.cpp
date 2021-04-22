@@ -1,3 +1,12 @@
+/*
+File: parser.cpp
+Author: Adam Thompson
+Course: CSC 407
+
+Contains the implementation for the `Parser` class. 
+*/
+
+
 #include "parser.h"
 
 #include "bb.h"

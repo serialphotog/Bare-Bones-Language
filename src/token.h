@@ -1,3 +1,10 @@
+/*
+File: token.h
+Author: Adam Thompson
+Course: CSC 407
+*/
+
+
 #ifndef __TOKEN_H__
 #define __TOKEN_H__
 
@@ -5,6 +12,10 @@
 
 #include "token_type.h"
 
+/*
+The `Token` class is a simple wrapper around a single token within the
+langauge. 
+*/
 class Token
 {
 public:

@@ -1,3 +1,12 @@
+/*
+File: main.cpp
+Author: Adam Thompson
+Course: CSC 407
+
+The main entry point into the program.
+*/
+
+
 #include <fstream>
 #include <iostream>
 #include <memory>

@@ -1,6 +1,16 @@
+/*
+File: token_type.h
+Author: Adam Thompson
+Course: CSC 407
+
+This file contains definitions for the various kinds of tokens found in
+the Bare Bones Language. 
+*/
+
 #ifndef __TOKEN_TYPE_H__
 #define __TOKEN_TYPE_H__
 
+// Definitions for the token types in the langauge.
 enum TokenType
 {
     T_UNKNOWN = -2, // Unknown token

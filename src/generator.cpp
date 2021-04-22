@@ -1,3 +1,12 @@
+/*
+File: generator.cpp
+Author: Adam Thompson
+Course: CSC 407
+
+Contains the implementation for the `Generator` class.
+*/
+
+
 #include "generator.h"
 
 #include <cstdlib>

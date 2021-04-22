@@ -1,4 +1,10 @@
 /*
+File: parser.h
+Author: Adam Thompson
+Course: CSC 407
+
+Contains the definitions for the langauge parser.
+
 The grammar for the bare bones language (bb) is as follows:
 
 // Program structure
@@ -52,6 +58,13 @@ The grammar for the bare bones language (bb) is as follows:
 #include "token.h"
 #include "token_type.h"
 
+/*
+The `Parser` class implements a recursive decent parser for the Bare
+Bones Language. It also triggers the code generator to generate the
+compiled code. Currently, the language compiles down to C, however
+I have attempted to keep everything abstracted well enough to make
+adding other code backends fairly straight-forward. 
+*/
 class Parser
 {
 public:
