@@ -1,6 +1,6 @@
 # This is a makefile that I developed some time ago for other c/c++ projects.
 # It's definitely overkill for this project, but I had it laying around anyway.
-TARGET_EXEC ?= p4
+TARGET_EXEC ?= bb
 
 BUILD_DIR ?= ./build
 SRC_DIRS ?= ./src
@@ -15,7 +15,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CC) $(OBJS) -o $@ $(LDFLAGS)
+	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
 
 # c++ source
 $(BUILD_DIR)/%.cpp.o: %.cpp
