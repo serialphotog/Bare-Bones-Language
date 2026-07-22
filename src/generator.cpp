@@ -39,8 +39,8 @@ void Generator::emitProgram(const std::vector<std::string>& identifierMap)
     m_file << "#include <stdio.h>\n";
     pprint_fileLineEnd();
 
-    // Start the main()
-    m_file << "void main() {";
+    // Start the main entry point using its standard C signature
+    m_file << "int main(void) {";
     pprint_fileLineEndStart();
 
     // Initialize the identifiers
@@ -49,7 +49,12 @@ void Generator::emitProgram(const std::vector<std::string>& identifierMap)
     // Emit the remaining lines of the program
     emitOutput();
 
-    // Finish off the main()
+    // Finish main with a successful exit status
+    pprint_fileLineStart();
+    m_file << "return 0;";
+    pprint_fileLineEnd();
+
+    // Close main
     m_file << "}";
 
     // Ensure the changes get flushed to disk
