@@ -168,6 +168,14 @@ Token Lexer::getToken()
                 int start = m_currentPos;
                 while (m_currentChar != '"')
                 {
+                    // Reaching the end of the input before a closing quote is a
+                    // malformed string.
+                    if (m_currentChar == '\0')
+                    {
+                        std::string msg = "Unterminated string literal.";
+                        abort(msg);
+                    }
+
                     // the `\"` sequence is a special case in which the `"` 
                     // should be treated as part of the string and not as the 
                     // terminating symbol of this string
@@ -313,7 +321,8 @@ void Lexer::skipComments()
 {
     if (m_currentChar == '#')
     {
-        while (m_currentChar != '\n')
+        // A final comment does not need to end with a newline.
+        while (m_currentChar != '\n' && m_currentChar != '\0')
             nextChar();
     }
 }
