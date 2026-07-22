@@ -513,8 +513,16 @@ void Parser::buildPrint(std::stringstream& ss, std::vector<std::string>& idents)
 {
     if (Token::isKind(m_currentToken, T_STRING))
     {
-        // Simply append the string literal token to the print string
-        ss << m_currentToken.lexeme();
+        // String literals become part of a printf format string. Escape any
+        // user-provided '%' so it remains literal text rather than introducing
+        // a conversion that has no corresponding argument.
+        for (char character : m_currentToken.lexeme())
+        {
+            if (character == '%')
+                ss << "%%";
+            else
+                ss << character;
+        }
     }
     else
     {
