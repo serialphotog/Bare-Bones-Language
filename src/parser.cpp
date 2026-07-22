@@ -374,124 +374,97 @@ void Parser::boolean_expression()
 {
     print_parse("<boolean_expression>");
 
-    // A boolean expression can either start with a !, (, identifier, or literal
-    // Check for a '!'
-    if (Token::isKind(m_currentToken, T_NOT))
+    boolean_or_expression();
+}
+
+void Parser::boolean_or_expression()
+{
+    // Make the parsed precedence explicit in the generated C output.
+    m_generator->emitToken(Token('(', T_LPAREN));
+    boolean_and_expression();
+
+    while (Token::isKind(m_currentToken, T_OR))
     {
-        // We can just emit this token and move one
         m_generator->emitToken(m_currentToken);
         nextToken();
+        boolean_and_expression();
+    }
+    m_generator->emitToken(Token(')', T_RPAREN));
+}
+
+void Parser::boolean_and_expression()
+{
+    m_generator->emitToken(Token('(', T_LPAREN));
+    boolean_comparison_expression();
+
+    while (Token::isKind(m_currentToken, T_AND))
+    {
+        m_generator->emitToken(m_currentToken);
+        nextToken();
+        boolean_comparison_expression();
+    }
+    m_generator->emitToken(Token(')', T_RPAREN));
+}
+
+void Parser::boolean_comparison_expression()
+{
+    boolean_primary();
+
+    // Comparisons are intentionally limited to one operator at this level.
+    // This rejects ambiguous chains such as a < b < c while still allowing
+    // comparisons to be combined with the logical precedence levels above.
+    if (Token::isComparisonOperator(m_currentToken))
+    {
+        m_generator->emitToken(m_currentToken);
+        nextToken();
+        boolean_primary();
+    }
+}
+
+void Parser::boolean_primary()
+{
+    if (Token::isKind(m_currentToken, T_NOT))
+    {
+        m_generator->emitToken(m_currentToken);
+        nextToken();
+        boolean_primary();
+        return;
     }
 
-    // Check for a '('
     if (Token::isKind(m_currentToken, T_LPAREN))
     {
-        // Emit the token, advance the parser, and parse the remainder as a 
-        // boolean expression
         m_generator->emitToken(m_currentToken);
         nextToken();
         boolean_expression();
-       
-        // Check for the closing ')'
+
         if (Token::isKind(m_currentToken, T_RPAREN))
         {
-            // Emit the token, advance the parser
             m_generator->emitToken(m_currentToken);
             nextToken();
-
-            // If we have a comparison operator (<, >, <=, >=, !=, ==)
-            // then we need to emit it and parse the remainder as a boolean
-            // expression
-            if (Token::isComparisonOperator(m_currentToken))
-            {
-                m_generator->emitToken(m_currentToken);
-                nextToken();
-                boolean_expression();
-            } 
         }
         else
         {
-            // Error, unmatched parenthesis
             abort("Expected a RPAREN.");
         }
+
+        return;
     }
-    else 
+
+    if (Token::isKind(m_currentToken, T_IDENT))
     {
-        // If we are here then we have either an identifier or a literal
-        if (Token::isKind(m_currentToken, T_IDENT))
-        {
-            // Check that the identifier has been declared
-            checkValidIdentifier(m_currentToken);
-        }
-        else
-        {
-            if (!Token::isKind(m_currentToken, T_NUM))
-            {
-                abort("Unexpected token encountered in boolean expression.");
-            }
-        }
-
-       m_generator->emitToken(m_currentToken);
-       nextToken();
-
-       // We should have a comparison operator here
-       if (Token::isComparisonOperator(m_currentToken))
-       {
-           m_generator->emitToken(m_currentToken);
-           nextToken();
-
-           // We could optionally have a '!' here
-            if (Token::isKind(m_currentToken, T_NOT))
-            {
-                m_generator->emitToken(m_currentToken);
-                nextToken();
-            } 
-
-            // We could optionally have a '(' here
-            if (Token::isKind(m_currentToken, T_LPAREN))
-            {
-                // Emit the token, advance the parser, and parse as boolean expression
-                m_generator->emitToken(m_currentToken);
-                nextToken();
-                boolean_expression();
-
-                // Check for the closing ')'
-                if (Token::isKind(m_currentToken, T_RPAREN))
-                {
-                    m_generator->emitToken(m_currentToken);
-                    nextToken();
-                }
-                else 
-                {
-                    abort("Expected a RPAREN.");
-                }
-            }
-            else 
-            {
-                // We should have either an identifer or a literal here
-                if (Token::isKind(m_currentToken, T_IDENT))
-                {
-                    // Check that the identifier has been declared
-                    checkValidIdentifier(m_currentToken);
-                }
-                else
-                {
-                    if (!Token::isKind(m_currentToken, T_NUM))
-                    {
-                        abort("Unexpected token encountered in boolean expression.");
-                    }
-                }
-
-                // Emit the token and advance the parser
-                m_generator->emitToken(m_currentToken);
-                nextToken();
-            }
-       }
-       else 
-       {
-           abort("Unexpected token encountered in boolean expression. Expected a boolean comparison.");
-       }
+        checkValidIdentifier(m_currentToken);
+        m_generator->emitToken(m_currentToken);
+        nextToken();
+        return;
     }
+
+    if (Token::isKind(m_currentToken, T_NUM))
+    {
+        numeric_value();
+        return;
+    }
+
+    abort("Unexpected token encountered in boolean expression.");
 }
 
 void Parser::isStringOrIdent()
@@ -658,38 +631,15 @@ void Parser::assignment()
     print_parse("<assignment>");
 
     // The next token should be an '=' and advance the parser
-    if (Token::isKind(m_currentToken, T_EQ))
+    if (Token::isAssignmentOperator(m_currentToken))
     {   
         // Output the '='
         m_generator->emitToken(m_currentToken);
         nextToken();
 
-        // Here we can either have a literal value or an arithmetic expression
-        if (Token::isKind(m_currentToken, T_NUM))
-            numeric_value(); // Attempt to parse as a numeric value
-        else if (Token::isKind(m_currentToken, T_IDENT))
-        {
-            // Check that the identifier has bee previously declared
-            checkValidIdentifier(m_currentToken);
-            m_generator->emitToken(m_currentToken);
-            nextToken();
-        }
-        else 
-        {
-            // Error, expected a literal or identifier
-            abort("Expected a literal value or an identifier.");
-        }
-
-        // Handle arithmetic expressions
-        while (Token::isOperator(m_currentToken))
-        {
-            // Emit the operator and advance the parser
-            m_generator->emitToken(m_currentToken);
-            nextToken();
-
-            // Handle the arithmetic expression
-            arithmetic_expression();
-        }
+        // Parse every right-hand side through the same expression entry point.
+        // This includes single values as well as parenthesized expressions.
+        arithmetic_expression();
 
         // Ensure we end with a ';'
         endl(true);
@@ -763,7 +713,7 @@ void Parser::arithmetic_expression()
     factor();
     
     // recursive arithmetic expression
-    while (Token::isOperator(m_currentToken))
+    while (Token::isArithmeticOperator(m_currentToken))
     {
         // Emit the operator, advance the parser, and continue parsing the 
         // arithmetic expression

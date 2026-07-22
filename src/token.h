@@ -32,27 +32,58 @@ public:
 
     // Checks if a token is a keyword. This is an easy check since keywords are
     // defined to have a value >= 300
-    static bool isKeyword(Token tok) 
+    static bool isKeyword(const Token& tok)
     {
         return tok.type() >= 300;
     }
 
-    // Checks if a token is an operator. This is an easy check since operators
-    // are defined to be >= 200 && < 300
-    static bool isOperator(Token tok)
+    // Checks if a token is an arithmetic operator.
+    static bool isArithmeticOperator(const Token& tok)
     {
-        return tok.type() >= 200 && tok.type() < 300;
+        switch (tok.type())
+        {
+            case T_PLUS:
+            case T_MINUS:
+            case T_DIV:
+            case T_MUL:
+            case T_MOD:
+                return true;
+            default:
+                return false;
+        }
     }
 
-    // Checks if a token is a comparison operator. This is an easy check since 
-    // comparision operators have a value > 120 && < 130
-    static bool isComparisonOperator(Token tok) 
+    // Checks if a token is the assignment operator.
+    static bool isAssignmentOperator(const Token& tok)
     {
-        return tok.type() > 120 && tok.type() < 130;
+        return tok.type() == T_EQ;
+    }
+
+    // Checks if a token is a binary logical operator.
+    static bool isLogicalOperator(const Token& tok)
+    {
+        return tok.type() == T_AND || tok.type() == T_OR;
+    }
+
+    // Checks if a token is a comparison operator.
+    static bool isComparisonOperator(const Token& tok)
+    {
+        switch (tok.type())
+        {
+            case T_EQEQ:
+            case T_LT:
+            case T_GT:
+            case T_LTEQ:
+            case T_GTEQ:
+            case T_NEQ:
+                return true;
+            default:
+                return false;
+        }
     }
 
     // Checks if a token is of a given type.
-    static bool isKind(Token tok, TokenType type) 
+    static bool isKind(const Token& tok, TokenType type)
     {
         return tok.type() == type; 
     }
@@ -72,4 +103,3 @@ private:
 };
 
 #endif
-

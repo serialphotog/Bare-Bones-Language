@@ -194,12 +194,14 @@ void Generator::emitToken(Token token)
         // Emit an identifier to the output
         emit(token.lexeme().c_str());
     } 
-    else if (Token::isOperator(token))
+    else if (Token::isArithmeticOperator(token)
+        || Token::isAssignmentOperator(token))
     {
         // Emit an operator to the output
         emitOperator(token);
     } 
-    else if (Token::isComparisonOperator(token))
+    else if (Token::isComparisonOperator(token)
+        || Token::isLogicalOperator(token))
     {
         pprint_space();
 
